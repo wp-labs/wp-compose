@@ -1,0 +1,185 @@
+name: Release Compose Images
+
+on:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: write
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.discover.outputs.matrix }}
+      has_targets: ${{ steps.discover.outputs.has_targets }}
+      source_ref: ${{ steps.source-ref.outputs.source_ref }}
+    steps:
+      - name: Select source branch
+        id: source-ref
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag_name="${GITHUB_REF_NAME}"
+          source_ref="main"
+
+          case "$tag_name" in
+            *alpha*) source_ref="alpha" ;;
+            *beta*) source_ref="beta" ;;
+          esac
+
+          echo "source_ref=${source_ref}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout source branch
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.source-ref.outputs.source_ref }}
+
+      - name: Discover compose directories
+        id: discover
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          root = Path.cwd()
+          tag_name = os.environ["GITHUB_REF_NAME"]
+          compose_names = (
+              "docker-compose.yml",
+              "docker-compose.yaml",
+              "compose.yml",
+              "compose.yaml",
+          )
+          targets = (
+              ("linux/amd64", "x86_64-unknown-linux-gnu"),
+              ("linux/arm64", "aarch64-unknown-linux-gnu"),
+          )
+          items = []
+
+          for child in sorted(root.iterdir()):
+              if not child.is_dir() or child.name.startswith('.'):
+                  continue
+              for compose_name in compose_names:
+                  compose_path = child / compose_name
+                  if compose_path.exists():
+                      for platform, target_triple in targets:
+                          asset_name = f"{child.name}-{tag_name}-{target_triple}-images"
+                          items.append(
+                              {
+                                  "directory": child.name,
+                                  "compose_file": str(compose_path.relative_to(root)),
+                                  "platform": platform,
+                                  "target_triple": target_triple,
+                                  "artifact_name": asset_name,
+                                  "archive_name": f"{asset_name}.tar.gz",
+                              }
+                          )
+                      break
+
+          output_path = Path(os.environ["GITHUB_OUTPUT"])
+          with output_path.open("a", encoding="utf-8") as fh:
+              fh.write(f"has_targets={'true' if items else 'false'}\n")
+              fh.write("matrix<<EOF\n")
+              fh.write(json.dumps(items))
+              fh.write("\nEOF\n")
+          PY
+
+  package:
+    needs: discover
+    if: needs.discover.outputs.has_targets == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.discover.outputs.matrix) }}
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.discover.outputs.source_ref }}
+
+      - name: Package compose images
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release-assets
+
+          project_dir="${{ github.workspace }}/${{ matrix.directory }}"
+          compose_file="${{ matrix.compose_file }}"
+          platform="${{ matrix.platform }}"
+          target_triple="${{ matrix.target_triple }}"
+          archive_path="release-assets/${{ matrix.archive_name }}"
+
+          mapfile -t images < <(docker compose --project-directory "$project_dir" -f "$compose_file" config --images | sort -u)
+
+          if [[ ${#images[@]} -eq 0 ]]; then
+            echo "No images found in $compose_file" >&2
+            exit 1
+          fi
+
+          printf 'Packaging images for %s (%s)\n' "${{ matrix.directory }}" "$target_triple"
+          printf ' - %s\n' "${images[@]}"
+
+          for image in "${images[@]}"; do
+            docker pull --platform "$platform" "$image"
+          done
+
+          docker save "${images[@]}" | gzip -c > "$archive_path"
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: release-assets/${{ matrix.archive_name }}
+          if-no-files-found: error
+
+  release:
+    needs:
+      - discover
+      - package
+    if: needs.discover.outputs.has_targets == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all package artifacts
+        uses: actions/download-artifact@v5
+        with:
+          path: release-assets
+
+      - name: Create or update GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG_NAME: ${{ github.ref_name }}
+          SOURCE_REF: ${{ needs.discover.outputs.source_ref }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s globstar nullglob
+          assets=(release-assets/**/*.tar.gz)
+
+          if [[ ${#assets[@]} -eq 0 ]]; then
+            echo "No release assets found" >&2
+            exit 1
+          fi
+
+          notes_file="$(mktemp)"
+          {
+            echo "Package source branch: ${SOURCE_REF}"
+            echo
+            echo "Included archives:"
+            for asset in "${assets[@]}"; do
+              echo "- $(basename "$asset")"
+            done
+          } > "$notes_file"
+
+          if gh release view "$TAG_NAME" --repo "$GH_REPO" >/dev/null 2>&1; then
+            gh release upload "$TAG_NAME" "${assets[@]}" --repo "$GH_REPO" --clobber
+          else
+            gh release create "$TAG_NAME" "${assets[@]}" --repo "$GH_REPO" --notes-file "$notes_file" --title "$TAG_NAME"
+          fi
