@@ -20,7 +20,7 @@
 - `x86_64-unknown-linux-gnu`：适用于常见 Intel / AMD Linux 环境
 - `aarch64-unknown-linux-gnu`：适用于 ARM64 Linux 环境
 
-如果你是仓库维护者，想了解 tag 规则、目录约定和打包流程，请查看 `docs/developer.md`。
+如果你是仓库维护者，想了解 tag 规则、目录约定和打包流程，请查看 `CONTRIBUTING.md`。
 
 ## 离线导入镜像
 
