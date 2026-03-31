@@ -59,15 +59,27 @@ jobs:
               ("linux/arm64", "aarch64-unknown-linux-gnu"),
           )
           items = []
+          candidate_dirs = []
 
           for child in sorted(root.iterdir()):
-              if not child.is_dir() or child.name.startswith('.'):
-                  continue
+              if child.is_dir() and not child.name.startswith('.'):
+                  candidate_dirs.append(child)
+
+          selected_dirs = []
+          matching_dirs = [child for child in candidate_dirs if tag_name.startswith(f"{child.name}-")]
+          if matching_dirs:
+              for child in matching_dirs:
+                  selected_dirs.append((child, tag_name[len(child.name) + 1:]))
+          else:
+              for child in candidate_dirs:
+                  selected_dirs.append((child, tag_name))
+
+          for child, version_label in selected_dirs:
               for compose_name in compose_names:
                   compose_path = child / compose_name
                   if compose_path.exists():
                       for platform, target_triple in targets:
-                          asset_name = f"{child.name}-{tag_name}-{target_triple}-images"
+                          asset_name = f"{child.name}-{version_label}-{target_triple}-images"
                           items.append(
                               {
                                   "directory": child.name,
