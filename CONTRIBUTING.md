@@ -17,12 +17,10 @@
 
 ## Release 打包 CI
 
-仓库使用 `/.github/workflows/release-compose-images.yml` 进行镜像离线包发布。
-
 这个工作流会在推送 Git tag 时自动执行以下动作：
 
 - 扫描仓库根目录下所有非隐藏一级目录
-- 查找目录中的 Compose 文件
+- 查找目录中的 Docker Compose 文件
 - 如果 tag 以前缀 `目录名-` 开头，则只打包该目录
 - 使用 `docker compose config --images` 提取目录所需镜像
 - 分别按 `linux/amd64` 和 `linux/arm64` 拉取镜像并通过 `docker save` 打包
