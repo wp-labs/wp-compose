@@ -2,15 +2,12 @@
 
 这个仓库用于维护基于 Docker Compose 的工具集目录，并提供可下载的离线镜像包。
 
-当前仓库包含：
-
-- `wp-console/`：本地运行 `wp-editor`、`victoria-metrics`、`victoria-logs` 的 Docker Compose 环境
 
 ## 获取镜像包
 
 仓库会通过 GitHub Release 提供离线镜像包。
 
-当前 `wp-console/` 对应的 release 产物会包含两种架构：
+当前的 release 产物会包含两种架构：
 
 - `wp-console-0.1.0-alpha-x86_64-unknown-linux-gnu-images.tar.gz`
 - `wp-console-0.1.0-alpha-aarch64-unknown-linux-gnu-images.tar.gz`
@@ -46,7 +43,7 @@ docker load -i wp-console-0.1.0-alpha-x86_64-unknown-linux-gnu-images.tar
 - `wp-editor`：Web 控制台，默认端口 `8080`
 - `victoria-metrics`：指标存储，默认端口 `8428`
 - `victoria-logs`：日志存储，默认端口 `9428`
-
+- `wp-monitor`：wparse监控面板，默认端口 `18080`
 进入目录后可直接启动：
 
 ```bash
