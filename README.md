@@ -34,18 +34,9 @@ gunzip wp-console-0.1.0-alpha-x86_64-unknown-linux-gnu-images.tar.gz
 docker load -i wp-console-0.1.0-alpha-x86_64-unknown-linux-gnu-images.tar
 ```
 
-## 子目录说明
-
-### `wp-console/`
-
-`wp-console` 提供一套本地可运行的 Compose 环境，包含：
-
-- `wp-editor`：Web 控制台，默认端口 `8080`
-- `victoria-metrics`：指标存储，默认端口 `8428`
-- `victoria-logs`：日志存储，默认端口 `9428`
-- `wp-monitor`：wparse监控面板，默认端口 `18080`
-进入目录后可直接启动：
-
+最后进入到对应目录
 ```bash
 docker compose up -d
+# 老版本
+docker-compose up -d
 ```
