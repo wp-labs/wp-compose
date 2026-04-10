@@ -60,12 +60,6 @@ services:
     volumes:
       - ./wp-monitor/config:/app/config:ro
 
-  wp-editor:
-    container_name: wp-editor
-    image: ghcr.io/wp-labs/wp-editor:1.15.4-alpha
-    ports:
-      - "8080:8080"
-
 volumes:
   logs_data:
     driver: local

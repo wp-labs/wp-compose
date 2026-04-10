@@ -1,8 +1,7 @@
 # wp-console
 
-这个目录提供了一套基于 Docker Compose 的本地运行环境，用来快速启动以下 3 个服务：
+这个目录提供了一套观测wparse 的 Docker Compose 的本地运行环境，用来快速启动以下 3 个服务：
 
-- `wp-editor`：Web 控制台，默认暴露 `8080`
 - `victoria-metrics`：指标存储服务，默认暴露 `8428`
 - `victoria-logs`：日志存储服务，默认暴露 `9428`
 - `wp-monitor`：wparse监控面板，默认端口 `18080`
