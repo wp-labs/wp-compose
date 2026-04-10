@@ -13,6 +13,7 @@ services:
       - --loggerFormat=json
       - --retentionPeriod=${RETENTION_PERIOD}
       - --storageDataPath=/storage
+      - "-search.latencyOffset=0s"
     environment:
       - TZ=Asia/Shanghai
     # 健康检查
@@ -50,7 +51,7 @@ services:
       start_period: 30s
 
   wp-monitor:
-    image: ghcr.io/wp-labs/wp-monitor:0.3.3-alpha
+    image: ghcr.io/wp-labs/wp-monitor:0.3.5-alpha
     container_name: wp-monitor
     restart: unless-stopped
     ports:
