@@ -39,7 +39,6 @@ docs/node_modules/
 
 # Env files
 .env
-.env.*
 *.log
 *.dat
 .claude/settings.local.json
