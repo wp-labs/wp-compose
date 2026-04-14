@@ -1,4 +1,4 @@
-# wp-tools
+# wp-compose
 
 这个仓库用于维护基于 Docker Compose 的工具集目录，并提供可下载的离线镜像包。
 
@@ -9,8 +9,8 @@
 
 当前的 release 产物会包含两种架构：
 
-- `wp-console-0.1.0-alpha-x86_64-unknown-linux-gnu-images.tar.gz`
-- `wp-console-0.1.0-alpha-aarch64-unknown-linux-gnu-images.tar.gz`
+- `warp-observing-0.1.4-alpha-x86_64-unknown-linux-gnu-images.tar.gz`
+- `warp-observing-0.1.4-alpha-aarch64-unknown-linux-gnu-images.tar.gz`
 
 下载时请按你的运行环境选择：
 
@@ -24,14 +24,14 @@
 从 Release 下载 `*.tar.gz` 后，可以这样导入本地 Docker：
 
 ```bash
-gunzip -c wp-console-0.1.0-alpha-x86_64-unknown-linux-gnu-images.tar.gz | docker load
+gunzip -c warp-observing-0.1.4-alpha-x86_64-unknown-linux-gnu-images.tar.gz | docker load
 ```
 
 或者先解压，再通过 `-i` 参数导入：
 
 ```bash
-gunzip wp-console-0.1.0-alpha-x86_64-unknown-linux-gnu-images.tar.gz
-docker load -i wp-console-0.1.0-alpha-x86_64-unknown-linux-gnu-images.tar
+gunzip warp-observing-0.1.4-alpha-x86_64-unknown-linux-gnu-images.tar.gz
+docker load -i warp-observing-0.1.4-alpha-x86_64-unknown-linux-gnu-images.tar
 ```
 
 最后进入到对应目录
