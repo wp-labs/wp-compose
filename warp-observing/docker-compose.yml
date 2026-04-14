@@ -40,6 +40,7 @@ services:
       - --loggerFormat=json
       - --retentionPeriod=${RETENTION_PERIOD}
       - --storageDataPath=/storage
+      - --retention.maxDiskSpaceUsageBytes=${VLOG_MAX_DISK_SPACE_USAGE_BYTES}
     environment:
       - TZ=Asia/Shanghai
     # 添加健康检查

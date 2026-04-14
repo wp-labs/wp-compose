@@ -8,13 +8,15 @@
 
 ## 环境变量
 
-当前使用 `warp-observing/.env` 管理配置：
+当前使用 `warp-observing/.env` 管理配置（clone仓库后，请把 `.env.example` 重命名为 `.env`）：
 
 ```env
 RETENTION_PERIOD=15d
+VLOG_MAX_DISK_SPACE_USAGE_BYTES=50GiB
 ```
 
 - `RETENTION_PERIOD`: 指标和日志数据保留时间
+- `VLOG_MAX_DISK_SPACE_USAGE_BYTES`: 日志最大磁盘空间使用量，超过后会触发数据清理
 
 ## 启动
 ```bash
@@ -24,10 +26,17 @@ docker-compose up -d
 ```
 
 ## 接入方式
-在wparse的`topology/sinks/infra.d/monitor.toml`中添加如下配置
+在wparse的`topology/sinks/infra.d/monitor.toml`中添加如下监控配置
 ```toml
 [[sink_group.sinks]]
 name = "metrics_vmetrics_sink"
 connect = "victoriametrics_sink"
 params = { insert_url = "http://localhost:8428/api/v1/import/prometheus",flush_interval_secs = 1}
+```
+在wparse的`topology/sinks/infra.d/miss.toml`中添加如下miss配置
+```toml
+[[sink_group.sinks]]
+name = "victorialogs_output"
+connect = "victorialogs_sink"
+params = { endpoint = "http://localhost:9428", insert_path = "/insert/jsonline", flush_interval_secs = 3}
 ```
