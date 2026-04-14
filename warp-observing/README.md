@@ -31,7 +31,7 @@ docker-compose up -d
 [[sink_group.sinks]]
 name = "metrics_vmetrics_sink"
 connect = "victoriametrics_sink"
-params = { insert_url = "http://localhost:8428/api/v1/import/prometheus",flush_interval_secs = 1}
+params = { insert_url = "http://localhost:8428/api/v1/import/prometheus",flush_interval_secs = 3}
 ```
 在wparse的`topology/sinks/infra.d/miss.toml`中添加如下miss配置
 ```toml
