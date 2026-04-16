@@ -123,7 +123,8 @@ jobs:
           registry: ghcr.io
           username: ${{ secrets.GHCR_USERNAME || github.actor }}
           password: ${{ secrets.GHCR_TOKEN || secrets.GITHUB_TOKEN }}
-
+      - name: Debug
+        uses: mxschmitt/action-tmate@v3
       - name: Package compose images
         env:
           TAG_NAME: ${{ github.ref_name }}
@@ -205,3 +206,4 @@ jobs:
           else
             gh release create "$TAG_NAME" "${assets[@]}" --repo "$GH_REPO" --notes-file "$notes_file" --title "$TAG_NAME"
           fi
+
