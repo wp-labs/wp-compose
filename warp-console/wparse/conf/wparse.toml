@@ -22,6 +22,23 @@ output = "Console"
 path = "./data/logs"
 
 
+[admin_api]
+enabled = true
+bind = "127.0.0.1:19090"
+request_timeout_ms = 15000
+max_body_bytes = 4096
+
+[admin_api.auth]
+mode = "bearer_token"
+token_file = "runtime/admin_api.token"
+
+[admin_api.tls]
+enabled = false
+
+[project_remote]
+enabled = true
+repo = "http://gitea:3000/gitea/project_root.git"
+init_version = "1.0.0"
 # [stat]
 
 # [[stat.pick]]

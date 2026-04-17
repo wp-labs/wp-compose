@@ -1,11 +1,12 @@
 services:
   warp-parse:
     user: "root"
-    image: ghcr.io/wp-labs/warp-parse:0.21.7-alpha
+    image: ghcr.io/wp-labs/warp-parse:0.22.1-beta
     container_name: warp-parse
     restart: unless-stopped
     ports:
       - "19002:19002"
+      - "19090:19090"
     volumes:
       - ./wparse:/data
     entrypoint: ["wparse", "deamon", "--work-root", "/data"]
@@ -25,8 +26,6 @@ services:
     volumes:
       - warp-toolchain-data:/data
     restart: "no"
-    networks:
-      - warp-network
   # 此pg不开端口，仅供内部使用
   postgres:
     image: postgres:18.3
@@ -37,8 +36,6 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql
       - ./initdb:/docker-entrypoint-initdb.d:ro
-    networks:
-      - warp-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d postgres || exit 1"]
@@ -75,8 +72,6 @@ services:
     ports:
       - "3000:3000"
       - "222:22"
-    networks:
-      - warp-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000 > /dev/null 2>&1 || exit 1"]
@@ -104,8 +99,6 @@ services:
           --admin \
           --must-change-password=false || true
     restart: "no"
-    networks:
-      - warp-network
 
   warp-station:                                                                                             
     image: ghcr.io/wp-labs/wp-station:0.1.4-alpha
@@ -134,8 +127,6 @@ services:
       - warp-toolchain-data:/app/toolchain:ro
     ports:  
       - "8081:8081"
-    networks:
-      - warp-network
     restart: unless-stopped
     ulimits:
       nproc: 4096
@@ -202,9 +193,6 @@ services:
     volumes:
       - ./wp-monitor/config:/app/config:ro
 
-networks:
-  warp-network:
-    driver: bridge
 
 volumes:
   warp-toolchain-data:
