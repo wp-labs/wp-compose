@@ -6,6 +6,12 @@
 
 仓库根目录下每个非隐藏一级目录都可以作为一个独立工具目录。
 
+面向用户的入口约定如下：
+
+- 目录内提供 `setup.sh`：用于检查 Docker 环境、准备镜像
+- 目录内提供 `start.sh`：用于生成 `.env` 并启动服务
+- 共用逻辑放在仓库根目录 `scripts/` 下
+
 如果某个目录中存在以下任一文件：
 
 - `docker-compose.yml`
@@ -38,6 +44,68 @@
 
 - `wp-console-0.1.0-alpha-x86_64-unknown-linux-gnu-images.tar.gz`
 - `wp-console-0.1.0-alpha-aarch64-unknown-linux-gnu-images.tar.gz`
+
+## setup/start 约定
+
+### setup.sh
+
+`setup.sh` 当前约定负责：
+
+- 检查 `docker` 是否已安装
+- 检查 Docker daemon 是否已启动
+- 检查 `docker compose` 或 `docker-compose` 是否可用
+- 检查 compose 依赖镜像是否已存在
+- 镜像缺失时，按 release 规则下载 `*.tar.gz` 并执行 `docker load`
+- 导入成功后删除下载下来的 tar 包
+
+### start.sh
+
+`start.sh` 当前约定负责：
+
+- 在 `.env` 不存在时，根据 `.env.example` 生成 `.env`
+- 启动 `docker compose up -d` 或 `docker-compose up -d`
+
+`.env.example` 当前支持两类注释变量：
+
+- `# ${描述}`：交互式变量，提示用户输入，回车使用默认值
+- `# {描述}`：自动变量，不提示用户，直接写入默认值
+
+生成 `.env` 时，描述会被写成普通注释，例如：
+
+```env
+# 数据保存时间
+RETENTION_PERIOD=15d
+```
+
+## version.txt 约定
+
+需要在目标目录下提供 `version.txt`，当前只需要填写版本号，例如：
+
+```text
+0.1.5
+```
+
+`setup.sh` 会结合以下信息拼接 release 下载地址：
+
+- 目录名，例如 `warp-observing`
+- `version.txt` 中的版本号，例如 `0.1.5`
+- 当前 Git 分支，例如 `alpha`
+- 当前机器架构，例如 `x86_64` 或 `aarch64`
+
+下载地址格式为：
+
+```text
+https://github.com/wp-labs/wp-compose/releases/download/{目录名}-{版本}-{分支后缀}/{目录名}-{版本}-{分支后缀}-{架构}-unknown-linux-gnu-images.tar.gz
+```
+
+- 当前分支为 `main` 时，不拼接分支后缀
+- 当前分支为 `alpha` 时，会拼接 `-alpha`
+
+示例：
+
+```text
+https://github.com/wp-labs/wp-compose/releases/download/warp-observing-0.1.5-alpha/warp-observing-0.1.5-alpha-aarch64-unknown-linux-gnu-images.tar.gz
+```
 
 ## Tag 规则
 
