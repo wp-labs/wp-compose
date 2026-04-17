@@ -1,4 +1,15 @@
 services:
+  warp-parse:
+    user: "root"
+    image: ghcr.io/wp-labs/warp-parse:0.21.7-alpha
+    container_name: warp-parse
+    restart: unless-stopped
+    ports:
+      - "19002:19002"
+    volumes:
+      - ./wparse:/data
+    entrypoint: ["wparse", "deamon", "--work-root", "/data"]
+
   warp-toolchain:
     image: ghcr.io/wp-labs/warp-parse:0.21.7-alpha
     container_name: warp-toolchain
@@ -97,7 +108,7 @@ services:
       - warp-network
 
   warp-station:                                                                                             
-    image: ghcr.io/wp-labs/wp-station:latest
+    image: ghcr.io/wp-labs/wp-station:0.1.4-alpha
     container_name: warp-station
     depends_on:
       warp-toolchain:
@@ -114,8 +125,8 @@ services:
       # 使用环境变量覆盖容器内 config.toml 的敏感配置与环境相关地址
       - WP_STATION__DATABASE__PASSWORD=${POSTGRES_PASSWORD}
       - WP_STATION__GITEA__PASSWORD=${GITEA_ADMIN_PASSWORD}
-      - WP_STATION__ASSIST__BASE_URL=${STATION_ASSIST_BASE_URL}
-      - WP_STATION__FEATURES__DATA_COLLECT_URL=lscsda:2222
+      - WP_STATION__ASSIST__BASE_URL=${STATION_AI_BASE_URL}
+      - WP_STATION__FEATURES__DATA_COLLECT_URL=${WP_MONITOR_URL}
     volumes:
       - ./station/config/config.toml:/app/config/config.toml
       - ./station/default_configs:/app/default_configs
@@ -131,6 +142,66 @@ services:
     security_opt:
       - seccomp=unconfined
 
+  victoria-metrics:
+    image: victoriametrics/victoria-metrics:v1.133.0
+    ports:
+      - "8428:8428"
+    volumes:
+      # 数据存储目录，按需开启
+      - metrics_data:/storage
+    command:
+      - --envflag.enable
+      - --envflag.prefix=VM_
+      - --loggerFormat=json
+      - --retentionPeriod=${RETENTION_PERIOD}
+      - --storageDataPath=/storage
+      - "-search.latencyOffset=0s"
+    environment:
+      - TZ=Asia/Shanghai
+    # 健康检查
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:8428/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  victoria-logs:
+    image: victoriametrics/victoria-logs:v1.43.0
+    ports:
+      - "9428:9428"
+    # 数据存储目录,按需开启
+    volumes:
+      - logs_data:/storage
+    command:
+      - --envflag.enable
+      - --envflag.prefix=VLOGS_
+      - --http.shutdownDelay=15s
+      - --httpListenAddr=:9428
+      - --loggerFormat=json
+      - --retentionPeriod=${RETENTION_PERIOD}
+      - --storageDataPath=/storage
+      - --retention.maxDiskSpaceUsageBytes=${VLOG_MAX_DISK_SPACE_USAGE_BYTES}
+    environment:
+      - TZ=Asia/Shanghai
+    # 添加健康检查
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:9428/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  wp-monitor:
+    image: ghcr.io/wp-labs/wp-monitor:0.3.5-alpha
+    restart: unless-stopped
+    ports:
+      - "18080:18080"
+    environment:
+      APP_CONFIG_PATH: /app/config/app.toml
+    volumes:
+      - ./wp-monitor/config:/app/config:ro
+
 networks:
   warp-network:
     driver: bridge
@@ -139,3 +210,5 @@ volumes:
   warp-toolchain-data:
   postgres-data:
   gitea-data:
+  logs_data:
+  metrics_data:

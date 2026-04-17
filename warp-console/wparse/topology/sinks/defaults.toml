@@ -1,8 +1,8 @@
 version = "2.0"
 
 [defaults]
-tags = []
-
 [defaults.expect]
 basis = "total_input"
-mode = "warn"
+min_samples = 100
+mode = "error"
+

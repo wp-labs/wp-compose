@@ -1,0 +1,44 @@
+package /wp_editor/ {
+    rule alpha_operate_log {
+        (
+            json (
+            	symbol(wp-editor-alpha.service)@_SYSTEMD_UNIT
+            )
+            | take(log) | json_unescape() | (
+                time: date,
+                chars: level<[,]>,
+                chars: obj<<,>>,
+                _{:},
+                chars: content\0
+            )
+        )
+    }
+    rule beta_operate_log {
+        (
+            json (
+            	symbol(wp-editor-beta.service)@_SYSTEMD_UNIT
+            )
+            | take(log) | json_unescape() | (
+                time: date,
+                chars: level<[,]>,
+                chars: obj<<,>>,
+                _{:},
+                chars: content\0
+            )
+        )
+    }
+    rule stable_operate_log {
+        (
+            json (
+            	symbol(wp-editor.service)@_SYSTEMD_UNIT
+            )
+            | take(log) | json_unescape() | (
+                time: date,
+                chars: level<[,]>,
+                chars: obj<<,>>,
+                _{:},
+                chars: content\0
+            )
+        )
+    }
+}

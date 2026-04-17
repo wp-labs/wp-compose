@@ -1,0 +1,4 @@
+name : wp_monitor
+rule : /wp_monitor/*
+---
+* : auto = take() ;

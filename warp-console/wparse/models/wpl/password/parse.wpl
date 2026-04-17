@@ -1,0 +1,23 @@
+#[copy_raw(name:"raw_log")]
+package /password/ {
+    rule request_operate_log {
+        (
+            json | take(log) | json_unescape() | (
+              time:date<[,]>,
+              symbol(request):obj<[,]>,
+              chars:level<[,]>,
+              chars:content\0
+            )  
+        )
+    }
+    rule response_operate_log {
+        (
+            json | take(log) | json_unescape() | (
+              time:date<[,]>,
+              symbol(response):obj<[,]>,
+              chars:level<[,]>,
+              chars:content\0
+            )  
+        )
+    }
+}

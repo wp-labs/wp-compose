@@ -115,7 +115,7 @@ services:
       - WP_STATION__DATABASE__PASSWORD=${POSTGRES_PASSWORD}
       - WP_STATION__GITEA__PASSWORD=${GITEA_ADMIN_PASSWORD}
       - WP_STATION__ASSIST__BASE_URL=${STATION_ASSIST_BASE_URL}
-      - WP_STATION__FEATURES__DATA_COLLECT_URL=lscsda:2222
+      - WP_STATION__FEATURES__DATA_COLLECT_URL=${WP_MONITOR_URL}
     volumes:
       - ./station/config/config.toml:/app/config/config.toml
       - ./station/default_configs:/app/default_configs

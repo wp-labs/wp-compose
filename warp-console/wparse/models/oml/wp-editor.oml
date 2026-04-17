@@ -1,0 +1,4 @@
+name : wp_editor
+rule : /wp_editor/*
+---
+* : auto = take() ;

@@ -4,5 +4,6 @@ version = "2.0"
 name = "residue"
 
 [[sink_group.sinks]]
+name = "residue_output"
 connect = "file_raw_sink"
-params = { file = "residue.dat", base = true }
+params = {  file = "residue.dat" }
