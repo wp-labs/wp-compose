@@ -18,12 +18,49 @@ VLOG_MAX_DISK_SPACE_USAGE_BYTES=50GiB
 - `RETENTION_PERIOD`: 指标和日志数据保留时间
 - `VLOG_MAX_DISK_SPACE_USAGE_BYTES`: 日志最大磁盘空间使用量，超过后会触发数据清理
 
-## 启动
-```bash
-docker compose up -d
-# docker compose老版本使用下面命令
-docker-compose up -d
+## 镜像准备
+
+先在当前目录准备 `version.txt`，推荐格式如下：
+
+```text
+0.3.5
 ```
+
+- 第一行：版本号
+- 分支名直接取当前 Git 分支
+- 当前分支为 `main` 时，不拼接分支后缀
+- 当前分支为 `alpha` 时，会拼接 `-alpha`
+
+然后执行：
+
+```bash
+./setup.sh
+```
+
+`setup.sh` 会：
+
+- 检查 `docker` 和 `docker compose` / `docker-compose`
+- 检查当前 compose 依赖的镜像是否已存在
+- 若镜像缺失，则按如下规则下载并导入镜像包：
+
+```text
+https://github.com/wp-labs/wp-compose/releases/download/{目录名}-{版本}-{分支后缀}/{目录名}-{版本}-{分支后缀}-{架构}-unknown-linux-gnu-images.tar.gz
+```
+
+- 其中分支为 `main` 时，不拼接分支后缀
+
+## 启动
+
+镜像准备完成后执行：
+
+```bash
+./start.sh
+```
+
+`start.sh` 会：
+
+- 若不存在 `.env`，则根据 `.env.example` 交互生成
+- 然后执行 `docker compose up -d` 或 `docker-compose up -d`
 
 ## 接入方式
 在wparse的`topology/sinks/infra.d/monitor.toml`中添加如下监控配置
