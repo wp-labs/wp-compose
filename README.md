@@ -6,7 +6,7 @@
 
 - `warp-observing`：本地观测环境，包含 `victoria-metrics`、`victoria-logs`、`wp-monitor`
 - `warp-station`：本地管理台环境，包含 `postgres`、`gitea`、`warp-station`
-
+- `warp-console`：本地管理台环境+日志解析+观测环境
 ## 怎么用
 
 进入你需要的目录后，按下面两步执行：
