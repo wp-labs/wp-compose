@@ -173,7 +173,7 @@ ensure_images_exist() {
   done < <(collect_missing_images)
 
   if [[ ${#missing_images[@]} -eq 0 ]]; then
-    echo "compose 依赖的镜像已全部存在，跳过下载。"
+    echo "compose 依赖的镜像已全部存在。"
     return 0
   fi
 
