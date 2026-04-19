@@ -18,7 +18,15 @@ services:
       - TZ=Asia/Shanghai
     # 健康检查
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:8428/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://127.0.0.1:8428/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -45,14 +53,22 @@ services:
       - TZ=Asia/Shanghai
     # 添加健康检查
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:9428/health"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://127.0.0.1:9428/health",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
 
   wp-monitor:
-    image: ghcr.io/wp-labs/wp-monitor:0.3.5-alpha
+    image: ghcr.io/wp-labs/wp-monitor:0.4.0-beta
     container_name: wp-monitor
     restart: unless-stopped
     ports:
