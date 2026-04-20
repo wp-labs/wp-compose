@@ -94,11 +94,20 @@ start_compose() {
   "${COMPOSE_CMD[@]}" -f "$COMPOSE_FILE" up -d
 }
 
+print_access_entries() {
+  printf '\n访问入口：\n'
+  printf '  - warp-station: http://localhost:8081 (宿主机端口: 8081)\n'
+  printf '其他非关键服务入口：\n'
+  printf '  - gitea Web: http://localhost:3000 (宿主机端口: 3000)\n'
+  printf '  - gitea SSH: ssh://git@localhost:222 (宿主机端口: 222)\n'
+}
+
 main() {
   find_compose_file
   resolve_compose_cmd
   create_env_if_missing
   start_compose
+  print_access_entries
 }
 
 main "$@"
