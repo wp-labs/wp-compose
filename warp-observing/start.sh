@@ -94,11 +94,20 @@ start_compose() {
   "${COMPOSE_CMD[@]}" -f "$COMPOSE_FILE" up -d
 }
 
+print_access_entries() {
+  printf '\n访问入口：\n'
+  printf '  - wparse观测平台: http://localhost:18080 (宿主机端口: 18080)\n'
+  printf '其他非关键服务入口：\n'
+  printf '  - victoria-metrics: http://localhost:8428 (宿主机端口: 8428)\n'
+  printf '  - victoria-logs: http://localhost:9428 (宿主机端口: 9428)\n'
+}
+
 main() {
   find_compose_file
   resolve_compose_cmd
   create_env_if_missing
   start_compose
+  print_access_entries
 }
 
 main "$@"
