@@ -31,12 +31,12 @@ VLOG_MAX_DISK_SPACE_USAGE_BYTES=50GiB
 [[sink_group.sinks]]
 name = "metrics_vmetrics_sink"
 connect = "victoriametrics_sink"
-params = { insert_url = "http://localhost:8428/api/v1/import/prometheus",flush_interval_secs = 3}
+params = { endpoint = "http://127.0.0.1:8428"}
 ```
 在wparse的`topology/sinks/infra.d/miss.toml`中添加如下miss配置
 ```toml
 [[sink_group.sinks]]
 name = "victorialogs_output"
 connect = "victorialogs_sink"
-params = { endpoint = "http://localhost:9428", insert_path = "/insert/jsonline", flush_interval_secs = 3}
+params = { endpoint = "http://127.0.0.1:9428"}
 ```
