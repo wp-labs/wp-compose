@@ -154,6 +154,31 @@ restore_branch_if_needed() {
 }
 trap restore_branch_if_needed EXIT
 
+# ---------- 同步远端并检查分支是否落后 ----------
+
+if git -C "$ROOT_DIR" remote get-url origin >/dev/null 2>&1; then
+  log "同步远端: git fetch origin $TARGET_BRANCH"
+  if ! git -C "$ROOT_DIR" fetch origin "$TARGET_BRANCH" --quiet 2>/dev/null; then
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      log "警告: fetch origin $TARGET_BRANCH 失败，dry-run 跳过落后检查"
+    else
+      fail "fetch origin $TARGET_BRANCH 失败（网络问题或分支不存在）"
+    fi
+  fi
+
+  # 只有当前分支 == 目标分支（checkout 后必然成立）才能直接比较 HEAD
+  if [[ "$(git -C "$ROOT_DIR" branch --show-current)" == "$TARGET_BRANCH" ]]; then
+    if git -C "$ROOT_DIR" rev-parse --verify "origin/$TARGET_BRANCH" >/dev/null 2>&1; then
+      BEHIND="$(git -C "$ROOT_DIR" rev-list --count "HEAD..origin/$TARGET_BRANCH" 2>/dev/null || echo 0)"
+      if [[ "$BEHIND" -gt 0 ]]; then
+        fail "本地 $TARGET_BRANCH 落后 origin/$TARGET_BRANCH $BEHIND 个 commit，请先 git pull --ff-only 后重试"
+      fi
+    fi
+  fi
+else
+  log "未配置 origin 远程，跳过落后检查"
+fi
+
 # ---------- 查询 GitHub 源码 tag ----------
 # 假设: ghcr.io/wp-labs/<X> 对应 github.com/wp-labs/<X>
 # 源码 git tag 带 v 前缀 (v0.1.4-alpha)，镜像 tag 不带 (0.1.4-alpha)
