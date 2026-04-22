@@ -154,78 +154,30 @@ restore_branch_if_needed() {
 }
 trap restore_branch_if_needed EXIT
 
-# ---------- 查询 GHCR 最新 tag ----------
+# ---------- 查询 GitHub 源码 tag ----------
+# 假设: ghcr.io/wp-labs/<X> 对应 github.com/wp-labs/<X>
+# 源码 git tag 带 v 前缀 (v0.1.4-alpha)，镜像 tag 不带 (0.1.4-alpha)
 
-fetch_tags_anonymous() {
-  local token_resp token
-  token_resp="$(curl -sSfL "https://ghcr.io/token?scope=repository:${GHCR_PATH}:pull" 2>/dev/null || true)"
-  [[ -n "$token_resp" ]] || return 1
-  token="$(printf '%s' "$token_resp" | sed -E 's/.*"token":"([^"]+)".*/\1/')"
-  [[ -n "$token" && "$token" != "$token_resp" ]] || return 1
-  curl -sSfL -H "Authorization: Bearer $token" \
-    "https://ghcr.io/v2/${GHCR_PATH}/tags/list?n=10000" 2>/dev/null
-}
+query_repo_tags() {
+  command -v gh >/dev/null 2>&1 \
+    || fail "缺少 gh CLI，请参考 https://cli.github.com/"
+  gh auth status >/dev/null 2>&1 \
+    || fail "gh 未登录，请执行 gh auth login"
 
-fetch_tags_gh() {
-  command -v gh >/dev/null 2>&1 || return 1
-  gh auth status >/dev/null 2>&1 || return 1
-  # gh api 返回版本列表，tag 在 metadata.container.tags
-  gh api --paginate "/orgs/wp-labs/packages/container/${SHORT_NAME}/versions" 2>/dev/null \
-    | tr -d '\n' \
-    | sed -E 's/\},\{/\}\n\{/g' \
-    | sed -nE 's/.*"tags":\[([^]]*)\].*/\1/p' \
-    | tr ',' '\n' \
-    | sed -nE 's/^[[:space:]]*"([^"]+)".*/\1/p'
-}
-
-fetch_tags_token() {
-  [[ -n "${GITHUB_TOKEN:-}" ]] || return 1
-  curl -sSfL -H "Authorization: Bearer $GITHUB_TOKEN" \
-    "https://ghcr.io/v2/${GHCR_PATH}/tags/list?n=10000" 2>/dev/null
-}
-
-parse_tags_from_registry_json() {
-  # 输入: {"name":"...","tags":["t1","t2",...]}
-  tr -d '\n ' \
-    | sed -nE 's/.*"tags":\[([^]]*)\].*/\1/p' \
-    | tr ',' '\n' \
-    | sed -nE 's/^"([^"]+)"$/\1/p'
-}
-
-query_latest_tag() {
-  local raw tags
-  # 1. 匿名
-  raw="$(fetch_tags_anonymous || true)"
-  if [[ -n "$raw" ]]; then
-    tags="$(printf '%s' "$raw" | parse_tags_from_registry_json)"
-    if [[ -n "$tags" ]]; then
-      printf '%s' "$tags"
-      return 0
+  local raw
+  if ! raw="$(gh api --paginate "repos/wp-labs/${SHORT_NAME}/tags" --jq '.[].name' 2>&1)"; then
+    if printf '%s' "$raw" | grep -q "Not Found"; then
+      fail "找不到仓库 wp-labs/${SHORT_NAME}（镜像名与仓库名不一致？）"
     fi
+    fail "查询 repos/wp-labs/${SHORT_NAME}/tags 失败: $raw"
   fi
-  # 2. gh
-  tags="$(fetch_tags_gh || true)"
-  if [[ -n "$tags" ]]; then
-    printf '%s' "$tags"
-    return 0
-  fi
-  # 3. GITHUB_TOKEN
-  raw="$(fetch_tags_token || true)"
-  if [[ -n "$raw" ]]; then
-    tags="$(printf '%s' "$raw" | parse_tags_from_registry_json)"
-    if [[ -n "$tags" ]]; then
-      printf '%s' "$tags"
-      return 0
-    fi
-  fi
-  return 1
+  # strip 开头的 v，得到镜像 tag 风格
+  printf '%s\n' "$raw" | sed -nE 's/^v([0-9].*)$/\1/p'
 }
 
-log "查询 GHCR tag 列表..."
-ALL_TAGS="$(query_latest_tag || true)"
-if [[ -z "$ALL_TAGS" ]]; then
-  fail "无法获取镜像 tag：请确认镜像存在，或设置 GITHUB_TOKEN / gh auth login"
-fi
+log "查询源码 tag: repos/wp-labs/${SHORT_NAME}"
+ALL_TAGS="$(query_repo_tags)"
+[[ -n "$ALL_TAGS" ]] || fail "仓库 wp-labs/${SHORT_NAME} 无可用 tag"
 
 LATEST_TAG="$(printf '%s\n' "$ALL_TAGS" | grep -E "$TAG_REGEX" | sort -V | tail -n1 || true)"
 [[ -n "$LATEST_TAG" ]] || fail "在分支 $TARGET_BRANCH 下未找到匹配 $TAG_REGEX 的 tag"
