@@ -106,7 +106,12 @@ print_access_entries() {
   printf '  - warp-parse admin API: http://localhost:19090 (宿主机端口: 19090)\n'
 }
 
+chmod_admin_token(){
+  chmod 600 ./wparse/runtime/admin_api.token
+}
+
 main() {
+  chmod_admin_token
   find_compose_file
   resolve_compose_cmd
   create_env_if_missing
