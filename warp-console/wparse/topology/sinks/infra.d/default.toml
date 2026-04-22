@@ -8,8 +8,6 @@ oml = []
 name = "default_output"
 connect = "blackhole_sink"
 
-#connect = "file_raw_sink"
-#params = {  file = "default.dat" }
 
 [sink_group.sinks.expect]
 ratio = 1.00

@@ -98,20 +98,15 @@ print_access_entries() {
   printf '\n访问入口：\n'
   printf '  - wparse控制台: http://localhost:8081 (宿主机端口: 8081)\n'
   printf '  - wparse观测平台: http://localhost:18080 (宿主机端口: 18080)\n'
-  printf '其他非关键服务入口：\n'
-  printf '  - gitea Web: http://localhost:3000 (宿主机端口: 3000)\n'
-  printf '  - gitea SSH: ssh://git@localhost:222 (宿主机端口: 222)\n'
-  printf '  - victoria-metrics: http://localhost:8428 (宿主机端口: 8428)\n'
-  printf '  - victoria-logs: http://localhost:9428 (宿主机端口: 9428)\n'
-  printf '  - warp-parse admin API: http://localhost:19090 (宿主机端口: 19090)\n'
-}
-
-chmod_admin_token(){
-  chmod 644 ./wparse/runtime/admin_api.token
+  # printf '其他非关键服务入口：\n'
+  # printf '  - gitea Web: http://localhost:3000 (宿主机端口: 3000)\n'
+  # printf '  - gitea SSH: ssh://git@localhost:222 (宿主机端口: 222)\n'
+  # printf '  - victoria-metrics: http://localhost:8428 (宿主机端口: 8428)\n'
+  # printf '  - victoria-logs: http://localhost:9428 (宿主机端口: 9428)\n'
+  # printf '  - warp-parse admin API: http://localhost:19090 (宿主机端口: 19090)\n'
 }
 
 main() {
-  chmod_admin_token
   find_compose_file
   resolve_compose_cmd
   create_env_if_missing

@@ -8,8 +8,11 @@ services:
       - "19002:19002"
       - "19090:19090"
     volumes:
-      - ./wparse:/data
-    entrypoint: ["wparse", "deamon", "--work-root", "/data"]
+      - ./station/default_configs:/data:ro
+      - ./wparse/wparse-start.sh:/wparse-start.sh
+      - app-config:/app/config
+    entrypoint: ["/bin/sh", "/wparse-start.sh"]
+    # entrypoint: ["wparse", "deamon", "--work-root", "/data"]
 
   warp-toolchain:
     image: ghcr.io/wp-labs/warp-parse:0.23.0-alpha
@@ -123,7 +126,6 @@ services:
     volumes:
       - ./station/config/config.toml:/app/config/config.toml
       - ./station/default_configs:/app/default_configs
-      - ./station/project_root:/app/project_root
       - warp-toolchain-data:/app/toolchain:ro
     ports:  
       - "8081:8081"
@@ -200,3 +202,4 @@ volumes:
   gitea-data:
   logs_data:
   metrics_data:
+  app-config:
