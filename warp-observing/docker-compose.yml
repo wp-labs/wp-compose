@@ -68,7 +68,7 @@ services:
       start_period: 30s
 
   wp-monitor:
-    image: ghcr.io/wp-labs/wp-monitor:0.4.0-beta
+    image: ghcr.io/wp-labs/wp-monitor:0.4.1-alpha
     container_name: wp-monitor
     restart: unless-stopped
     ports:
