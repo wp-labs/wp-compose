@@ -24,7 +24,7 @@ path = "./data/logs"
 
 [admin_api]
 enabled = true
-bind = "127.0.0.1:19090"
+bind = "0.0.0.0:19090"
 request_timeout_ms = 15000
 max_body_bytes = 4096
 

@@ -1,7 +1,7 @@
 services:
   warp-parse:
     user: "root"
-    image: ghcr.io/wp-labs/warp-parse:0.22.1-beta
+    image: ghcr.io/wp-labs/warp-parse:0.23.0-alpha
     container_name: warp-parse
     restart: unless-stopped
     ports:
@@ -12,7 +12,7 @@ services:
     entrypoint: ["wparse", "deamon", "--work-root", "/data"]
 
   warp-toolchain:
-    image: ghcr.io/wp-labs/warp-parse:0.21.7-alpha
+    image: ghcr.io/wp-labs/warp-parse:0.23.0-alpha
     container_name: warp-toolchain
     entrypoint: ["/bin/sh", "-c"]
     command:
