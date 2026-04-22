@@ -107,7 +107,7 @@ print_access_entries() {
 }
 
 chmod_admin_token(){
-  chmod 600 ./wparse/runtime/admin_api.token
+  chmod 644 ./wparse/runtime/admin_api.token
 }
 
 main() {
