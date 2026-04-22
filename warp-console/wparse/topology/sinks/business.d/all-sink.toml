@@ -4,8 +4,8 @@
 name = "all"
 rule = ["*"]
 
-# # vlog
-# [[sink_group.sinks]]
-# name = "victorialogs_output"
-# connect = "victorialogs_sink"
-# params = { endpoint = "http://victoria-logs:9428", insert_path = "/insert/jsonline?_msg_field=content,log", flush_interval_secs = 3}
+# vlog
+[[sink_group.sinks]]
+name = "victorialogs_output"
+connect = "victorialogs_sink"
+params = { endpoint = "http://victoria-logs:9428", insert_path = "/insert/jsonline?_msg_field=content,log", flush_interval_secs = 3}

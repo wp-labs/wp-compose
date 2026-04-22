@@ -7,8 +7,8 @@ if [ ! -f /app/config/.initialized ]; then
   touch /app/config/.initialized
 fi
 
-if [ -f /app/config/admin_api.token ]; then
-  chmod 600 /app/config/admin_api.token
+if [ -f /app/config/runtime/admin_api.token ]; then
+  chmod 600 /app/config/runtime/admin_api.token
 fi
 
 wparse deamon --work-root /app/config 
