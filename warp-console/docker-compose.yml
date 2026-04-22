@@ -8,10 +8,9 @@ services:
       - "19002:19002"
       - "19090:19090"
     volumes:
-      - ./station/default_configs:/data:ro
-      - ./wparse/wparse-start.sh:/wparse-start.sh
+      - ./wparse:/data:ro
       - app-config:/app/config
-    entrypoint: ["/bin/sh", "/wparse-start.sh"]
+    entrypoint: ["/bin/sh", "/data/wparse-start.sh"]
     # entrypoint: ["wparse", "deamon", "--work-root", "/data"]
 
   warp-toolchain:
