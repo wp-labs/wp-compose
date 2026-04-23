@@ -30,7 +30,7 @@ max_body_bytes = 4096
 
 [admin_api.auth]
 mode = "bearer_token"
-token_file = "runtime/admin_api.token"
+token_file = "/root/.warp_parse/admin_api.token"
 
 [admin_api.tls]
 enabled = false
