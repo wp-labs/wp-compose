@@ -144,7 +144,7 @@ services:
 
 
   warp-station:
-    image: ghcr.io/wp-labs/wp-station:0.1.4-alpha
+    image: ghcr.io/wp-labs/wp-station:0.1.6-alpha
     container_name: warp-station
     user: "0:0"
     depends_on:
