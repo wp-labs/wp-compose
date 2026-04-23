@@ -1,6 +1,6 @@
 [sink_group]
 name = "all"
-rule = ["*"]
+oml = ["*"]
 
 # vlog
 [[sink_group.sinks]]
