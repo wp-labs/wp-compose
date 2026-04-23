@@ -3,10 +3,10 @@
 [sink_group]
 name = "monitor"
 
-# [[sink_group.sinks]]
-# name = "metrics_file_sink"
-# connect = "file_proto_sink"
-# params = {  file = "monitor.dat" }
+[[sink_group.sinks]]
+name = "metrics_file_sink"
+connect = "file_proto_sink"
+params = {  file = "monitor.dat" }
 
 
 [[sink_group.sinks]]

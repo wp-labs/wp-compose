@@ -44,12 +44,12 @@ max_body_bytes = 4096
 
 [admin_api.auth]
 mode = "bearer_token"
-token_file = "runtime/admin_api.token"
+token_file = "/root/.warp_parse/admin_api.token"
 
 [admin_api.tls]
 enabled = false
 
 [project_remote]
 enabled = true
-repo = "http://localhost:3000/gitea/project_root.git"
+repo = "http://gitea:3000/gitea/project_root.git"
 init_version = "1.0.0"

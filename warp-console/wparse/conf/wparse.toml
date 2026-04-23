@@ -1,4 +1,5 @@
 version = "1.0"
+robust = "normal"
 
 [models]
 wpl = "./models/wpl"
@@ -9,18 +10,31 @@ sources = "./topology/sources"
 sinks = "./topology/sinks"
 
 [performance]
-parse_workers = 2
-rate_limit_rps =  0
+rate_limit_rps = 0
+parse_workers = 1
 
 [rescue]
 path = "./data/rescue"
 
 [log_conf]
-level = "info"
+level = "info,parse=info,data=info,mtrc=warn,kdb=warn,ctrl=info,launch=warn,sink=info"
 output = "Console"
+# output = "File"
 [log_conf.file]
 path = "./data/logs"
 
+[stat]
+[[stat.pick]]
+key = "pick_stat"
+target = "*"
+
+[[stat.parse]]
+key = "parse_stat"
+target = "*"
+
+[[stat.sink]]
+key = "sink_stat"
+target = "*"
 
 [admin_api]
 enabled = true
@@ -39,19 +53,3 @@ enabled = false
 enabled = true
 repo = "http://gitea:3000/gitea/project_root.git"
 init_version = "1.0.0"
-# [stat]
-
-# [[stat.pick]]
-# key = "pick_stat"
-# target = "*"
-# fields = ["wpl_tag","wp_src_key"]
-
-# [[stat.parse]]
-# key = "parse_stat"
-# target = "*"
-# fields = ["wpl_tag", "wp_src_key"]
-
-# [[stat.sink]]
-# key = "sink_stat"
-# target = "*"
-# fields = ["wpl_tag","wp_src_key", "sink_category"]

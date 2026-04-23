@@ -8,11 +8,10 @@ services:
       - "19002:19002"
       - "19090:19090"
     volumes:
-      - ./wparse:/data:ro
+      - ./wparse:/app/config
       - ./wparse/.warp_parse:/root/.warp_parse
-      - app-config:/app/config
-    entrypoint: ["/bin/sh", "/data/wparse-start.sh"]
-    # entrypoint: ["wparse", "deamon", "--work-root", "/data"]
+    # entrypoint: ["/bin/sh", "/data/wparse-start.sh"]
+    entrypoint: ["wparse", "deamon", "--work-root", "/app/config"]
 
   warp-toolchain:
     image: ghcr.io/wp-labs/warp-parse:0.23.0-alpha
@@ -141,8 +140,6 @@ services:
   #   security_opt:
   #     - seccomp=unconfined
 
-
-
   warp-station:
     image: ghcr.io/wp-labs/wp-station:0.1.6-alpha
     container_name: warp-station
@@ -196,7 +193,7 @@ services:
   victoria-metrics:
     image: victoriametrics/victoria-metrics:v1.133.0
     ports:
-      - "8428:8428"
+      - "18428:8428"
     volumes:
       # 数据存储目录，按需开启
       - metrics_data:/storage
@@ -220,7 +217,7 @@ services:
   victoria-logs:
     image: victoriametrics/victoria-logs:v1.43.0
     ports:
-      - "9428:9428"
+      - "19428:9428"
     # 数据存储目录,按需开启
     volumes:
       - logs_data:/storage
@@ -260,4 +257,3 @@ volumes:
   gitea-data:
   logs_data:
   metrics_data:
-  app-config:
